@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Jose Salazar <znx3p0@gmail.com>"]
 edition = "2018"
 
-license = "MPL 2.0"
+license = "MPL"
 documentation = "https://docs.rs/qcomms/"
 repository = "https://github.com/znx3p0/qcomms"
 description = """
