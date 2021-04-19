@@ -4,6 +4,14 @@ version = "0.1.0"
 authors = ["Jose Salazar <znx3p0@gmail.com>"]
 edition = "2018"
 
+license = "MPL 2.0"
+documentation = "https://docs.rs/qcomms/"
+repository = "https://github.com/znx3p0/qcomms"
+description = """
+qcomms is a small library that offers a simple message passing trait.
+it also offers keepalive and other stream helpers.
+"""
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
