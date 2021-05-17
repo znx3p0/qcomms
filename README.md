@@ -4,29 +4,8 @@ qcomms is a small library that offers a simple message passing trait.
 it also offers keepalive and other stream helpers.
 
 ```rust
-
-use std::io::Result;
-
-use qcomms::ObjComms;
-use serde::{Deserialize, Serialize};
-use tokio::{
-    net::{TcpListener, TcpStream},
-    spawn,
-};
-
-#[tokio::test]
-async fn test() -> Result<()> {
-    let handle = spawn(async {
-        server_start().await.unwrap();
-    });
-
-    spawn(async {
-        client_start().await.unwrap();
-    });
-
-    handle.await?;
-    Ok(())
-}
+use qcomms::SyncObjComms;
+use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Message {
@@ -34,32 +13,20 @@ struct Message {
     val: u32,
 }
 
-pub async fn server_start() -> Result<()> {
-    let l = TcpListener::bind("127.0.0.1:9091").await?;
+fn main() {
+    std::thread::spawn(||{
+        let listener = std::net::TcpListener::bind("127.0.0.1:3022").unwrap();
+        let (mut stream, _) = listener.accept().unwrap();
+        let msg: Message = stream.rx().unwrap();
+        println!("message {:?}", msg);
+    });
 
-    let s = l.accept().await?;
-
-    let mut stream = s.0;
-    let d: String = stream.rx().await?;
-    println!("message: {:?}", d);
-    let d: Message = stream.rx().await?;
-    println!("message: {:?}", d);
-    Ok(())
-}
-
-pub async fn client_start() -> Result<()> {
-    let mut conn = TcpStream::connect("127.0.0.1:9091").await?;
-
-    conn.tx("Hi there!").await?;
-
-    let p = Message {
-        hello: "world".into(),
-        val: 23924,
+    let m = Message {
+        hello: "test message".into(),
+        val: 12,
     };
-    conn.tx(&p).await?;
-
-    Ok(())
+    std::thread::sleep(std::time::Duration::from_secs(1));
+    let mut p = std::net::TcpStream::connect("127.0.0.1:3022").unwrap();
+    p.tx(&m).unwrap();
 }
-
-
 ```
