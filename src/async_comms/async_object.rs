@@ -1,20 +1,31 @@
-
-
 #![cfg(feature = "asynct")]
 #![cfg(feature = "obj")]
 
-
-
-use async_trait::async_trait;
 use super::Comms;
+use async_trait::async_trait;
+use bincode::{deserialize, serialize};
+use serde::{de::DeserializeOwned, Serialize};
 use std::io::Result;
-use serde::{Serialize, de::DeserializeOwned};
-use bincode::{serialize, deserialize};
 
+
+/// ObjComms allows for serializable data structures to be sent across a stream
+/// and also allows for deserializable data structures to be received from a stream
+/// 
+/// ```
+/// conn.tx(1).await?;
+/// 
+/// conn.rx::<i32>().await?;
+/// ```
+/// 
 #[async_trait]
 pub trait ObjComms: Comms {
+    /// Send a serializable data structure across a stream
+    /// 
+    /// ``` 
+    /// conn.tx(1234).await?;
+    /// ```
     async fn tx<T: Serialize + Send + Sync + ?Sized>(&mut self, obj: &T) -> Result<()> {
-        let buf = match serialize(obj) {
+        let buf: Vec<u8> = match serialize(obj) {
             Ok(s) => s,
             Err(e) => {
                 return Err(std::io::Error::new(
@@ -23,14 +34,17 @@ pub trait ObjComms: Comms {
                 ))
             }
         };
-        self.send(&buf).await?;
-
-        Ok(())
+        self.send(&buf).await
     }
 
+    /// Receive a deserializable data structure from a stream
+    /// 
+    /// ``` 
+    /// conn.rx::<String>().await?;
+    /// ```
     async fn rx<T: DeserializeOwned + Send + Sync>(&mut self) -> Result<T> {
-        let d = self.receive().await?;
-        let d: T = match deserialize(&d) {
+        let buf = self.receive().await?;
+        let buf: T = match deserialize(&buf) {
             Ok(s) => s,
             Err(e) => {
                 return Err(std::io::Error::new(
@@ -39,7 +53,7 @@ pub trait ObjComms: Comms {
                 ))
             }
         };
-        Ok(d)
+        Ok(buf)
     }
 }
 

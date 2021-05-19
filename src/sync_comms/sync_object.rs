@@ -1,18 +1,21 @@
-
 #![cfg(feature = "obj")]
 
 use bincode::{deserialize, serialize};
-use serde::{Serialize, de::DeserializeOwned};
+use serde::{de::DeserializeOwned, Serialize};
 use std::io::Result;
 
 use super::sync_comms::SyncComms;
 
-
-
-
-
-
+/// Allows for data structures to be sent and received from synchronous streams
 pub trait SyncObjComms: SyncComms {
+    /// Send a serializable data structure across a stream.
+    /// 
+    /// ```
+    /// #[derive(Serialize)]
+    /// struct Message(u32);
+    /// 
+    /// conn.tx(Message(2));
+    /// ```
     fn tx<T: Serialize + Send + Sync + ?Sized>(&mut self, obj: &T) -> Result<()> {
         let buf = match serialize(obj) {
             Ok(s) => s,
@@ -24,10 +27,18 @@ pub trait SyncObjComms: SyncComms {
             }
         };
         self.send(&buf)?;
-
+        
         Ok(())
     }
-
+    
+    /// Receive a deserializable data structure from a stream.
+    /// 
+    /// ```
+    /// #[derive(Deserialize)]
+    /// struct Message(u32);
+    /// 
+    /// conn.rx::<Message>();
+    /// ```
     fn rx<T: DeserializeOwned + Send + Sync>(&mut self) -> Result<T> {
         let d = self.receive()?;
         let d: T = match deserialize(&d) {
@@ -44,9 +55,3 @@ pub trait SyncObjComms: SyncComms {
 }
 
 impl<T: SyncComms> SyncObjComms for T {}
-
-
-
-
-
-
