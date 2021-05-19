@@ -16,7 +16,7 @@ pub trait SyncComms: Write + Read + Encrypt + Decrypt {
         self.read_exact(&mut msg)?;
         Ok(msg)
     }
-    
+
     /// Sends a message to a stream
     fn send(&mut self, buf: &[u8]) -> Result<()> {
         let length: [u8; 8] = u64::to_ne_bytes(buf.len() as u64);
@@ -58,7 +58,7 @@ pub trait SyncComms: Write + Read + Encrypt + Decrypt {
         self.receive_keepalive()?;
         Ok(())
     }
-    
+
     /// Receives a handshake message.
     /// This receives a keepalive message and then sends a keepalive message
     fn receive_handshake(&mut self) -> Result<()> {

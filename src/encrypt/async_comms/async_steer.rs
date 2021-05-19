@@ -32,9 +32,9 @@ impl<'a, Stream: Comms + Send + Sync, Encryptor: Encrypt + Decrypt> Steer<'a, St
     /// ```
     /// #[derive(Deserialize)]
     /// struct Message(u32);
-    /// 
+    ///
     /// steer.rx::<Message>().await?;
-    /// ``` 
+    /// ```
     pub async fn rx<T: DeserializeOwned + Send + Sync>(&mut self) -> Result<T> {
         let buf = self.stream.receive().await?;
         let buf = Encryptor::encrypt(buf, self.key);
@@ -49,14 +49,14 @@ impl<'a, Stream: Comms + Send + Sync, Encryptor: Encrypt + Decrypt> Steer<'a, St
         };
         Ok(buf)
     }
-    
+
     /// Send a serializable data structure across a stream
     /// ```
     /// #[derive(Serialize)]
     /// struct Message(u32);
-    /// 
+    ///
     /// steer.tx(Message(2)).await?;
-    /// ``` 
+    /// ```
     pub async fn tx<T: Serialize + Send + Sync + ?Sized>(&mut self, obj: &T) -> Result<()> {
         let buf: Vec<u8> = match serialize(obj) {
             Ok(s) => s,

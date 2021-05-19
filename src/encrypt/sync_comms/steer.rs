@@ -51,7 +51,7 @@ impl<'a, Stream: SyncComms + Send + Sync, Encryptor: Encrypt + Decrypt>
     /// ```
     /// #[derive(Serialize, Deserialize)]
     /// struct SomeMessage(u32)
-    /// 
+    ///
     /// conn.tx(SomeMessage(2));
     /// ```
     pub fn tx<T: Serialize + Send + Sync + ?Sized>(&mut self, obj: &T) -> Result<()> {

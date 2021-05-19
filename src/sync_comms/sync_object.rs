@@ -9,11 +9,11 @@ use super::sync_comms::SyncComms;
 /// Allows for data structures to be sent and received from synchronous streams
 pub trait SyncObjComms: SyncComms {
     /// Send a serializable data structure across a stream.
-    /// 
+    ///
     /// ```
     /// #[derive(Serialize)]
     /// struct Message(u32);
-    /// 
+    ///
     /// conn.tx(Message(2));
     /// ```
     fn tx<T: Serialize + Send + Sync + ?Sized>(&mut self, obj: &T) -> Result<()> {
@@ -27,16 +27,16 @@ pub trait SyncObjComms: SyncComms {
             }
         };
         self.send(&buf)?;
-        
+
         Ok(())
     }
-    
+
     /// Receive a deserializable data structure from a stream.
-    /// 
+    ///
     /// ```
     /// #[derive(Deserialize)]
     /// struct Message(u32);
-    /// 
+    ///
     /// conn.rx::<Message>();
     /// ```
     fn rx<T: DeserializeOwned + Send + Sync>(&mut self) -> Result<T> {

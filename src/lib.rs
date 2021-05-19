@@ -8,7 +8,6 @@
 /// Keepalive message used for the Keepalive methods
 pub const KEEPALIVE: &[u8; 4] = &[74, 197, 182, 85];
 
-
 mod async_comms;
 
 /// Has encryption traits and the Steer and SyncSteer helper structures

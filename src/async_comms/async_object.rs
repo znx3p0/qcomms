@@ -7,21 +7,20 @@ use bincode::{deserialize, serialize};
 use serde::{de::DeserializeOwned, Serialize};
 use std::io::Result;
 
-
 /// ObjComms allows for serializable data structures to be sent across a stream
 /// and also allows for deserializable data structures to be received from a stream
-/// 
+///
 /// ```
 /// conn.tx(1).await?;
-/// 
+///
 /// conn.rx::<i32>().await?;
 /// ```
-/// 
+///
 #[async_trait]
 pub trait ObjComms: Comms {
     /// Send a serializable data structure across a stream
-    /// 
-    /// ``` 
+    ///
+    /// ```
     /// conn.tx(1234).await?;
     /// ```
     async fn tx<T: Serialize + Send + Sync + ?Sized>(&mut self, obj: &T) -> Result<()> {
@@ -38,8 +37,8 @@ pub trait ObjComms: Comms {
     }
 
     /// Receive a deserializable data structure from a stream
-    /// 
-    /// ``` 
+    ///
+    /// ```
     /// conn.rx::<String>().await?;
     /// ```
     async fn rx<T: DeserializeOwned + Send + Sync>(&mut self) -> Result<T> {
