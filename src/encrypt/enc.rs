@@ -32,6 +32,13 @@ impl Encrypt for tokio::net::UnixStream {}
 
 #[cfg(feature = "asynct")]
 #[cfg(feature = "obj")]
+impl Encrypt for tokio::net::UdpSocket {}
+#[cfg(feature = "asynct")]
+#[cfg(feature = "obj")]
+impl Decrypt for tokio::net::UdpSocket {}
+
+#[cfg(feature = "asynct")]
+#[cfg(feature = "obj")]
 impl Decrypt for tokio::net::TcpStream {}
 #[cfg(feature = "asynct")]
 #[cfg(feature = "obj")]

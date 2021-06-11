@@ -1,13 +1,22 @@
 use std::io::{Read, Result, Write};
 
 use crate::{
-    encrypt::{Decrypt, Encrypt},
     KEEPALIVE,
 };
 
-/// The synchronous version of Comms
-pub trait SyncComms: Write + Read + Encrypt + Decrypt {
-    /// Receives a message from a stream
+/// The Comms trait has various helper methods to work with streams
+pub trait SyncComms {
+    /// Receives a vector of bytes from a stream representing a message
+    fn receive(&mut self) -> Result<Vec<u8>>;
+    /// Sends a slice of bytes representing a message
+    fn send(&mut self, buf: &[u8]) -> Result<()>;
+    /// Receives a keepalive message
+    fn receive_keepalive(&mut self) -> Result<()>;
+    /// Sends a keepalive message
+    fn send_keepalive(&mut self) -> Result<()>;
+}
+
+impl<T: Write + Read> SyncComms for T {
     fn receive(&mut self) -> Result<Vec<u8>> {
         let mut buf = [0u8; 8];
         self.read_exact(&mut buf)?;
@@ -17,23 +26,14 @@ pub trait SyncComms: Write + Read + Encrypt + Decrypt {
         Ok(msg)
     }
 
-    /// Sends a message to a stream
     fn send(&mut self, buf: &[u8]) -> Result<()> {
         let length: [u8; 8] = u64::to_ne_bytes(buf.len() as u64);
         self.write(&length)?;
         self.flush()?;
         self.write(buf)?;
-        self.flush()?;
-        Ok(())
+        self.flush()
     }
 
-    /// Receive a message and turn it into a String
-    fn receive_to_string(&mut self) -> Result<String> {
-        let v = self.receive()?;
-        Ok(std::string::String::from_utf8_lossy(&v).to_string())
-    }
-
-    /// Receives a keepalive message
     fn receive_keepalive(&mut self) -> Result<()> {
         let p = self.receive()?;
         if p != KEEPALIVE {
@@ -45,27 +45,7 @@ pub trait SyncComms: Write + Read + Encrypt + Decrypt {
         Ok(())
     }
 
-    /// Sends a keepalive message
     fn send_keepalive(&mut self) -> Result<()> {
-        self.send(KEEPALIVE)?;
-        Ok(())
-    }
-
-    /// Sends a handshake message.
-    /// This sends a keepalive message, and then receives a keepalive message
-    fn send_handshake(&mut self) -> Result<()> {
-        self.send_keepalive()?;
-        self.receive_keepalive()?;
-        Ok(())
-    }
-
-    /// Receives a handshake message.
-    /// This receives a keepalive message and then sends a keepalive message
-    fn receive_handshake(&mut self) -> Result<()> {
-        self.receive_keepalive()?;
-        self.send_keepalive()?;
-        Ok(())
+        self.send(KEEPALIVE)
     }
 }
-
-impl<T: Write + Read + Encrypt + Decrypt> SyncComms for T {}
