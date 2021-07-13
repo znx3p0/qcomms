@@ -1,14 +1,14 @@
 #![cfg(feature = "asynct")]
 
+use async_std::{
+    io::prelude::{ReadExt, WriteExt},
+    net::{TcpStream, ToSocketAddrs, UdpSocket},
+};
 use async_trait::async_trait;
 use std::io::Result;
-use async_std::{io::prelude::{
-        WriteExt, Write, Read, ReadExt
-    }, net::{TcpStream, ToSocketAddrs, UdpSocket}};
+use tokio::io::*;
 use tokio::net::TcpStream as TokioTcpStream;
 use tokio::net::UnixStream;
-use tokio::io::*;
-
 
 use crate::KEEPALIVE;
 

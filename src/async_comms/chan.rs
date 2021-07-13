@@ -1,9 +1,9 @@
 use std::any::Any;
 
 use async_channel::{unbounded, Receiver, Sender};
-use serde::{Serialize, de::DeserializeOwned};
-use std::io::*;
 use async_trait::async_trait;
+use serde::{de::DeserializeOwned, Serialize};
+use std::io::*;
 
 use crate::ObjComms;
 
@@ -21,10 +21,7 @@ impl Stream {
     pub async fn tx<T: Send + Any>(&self, obj: T) -> Result<()> {
         match self.tx.try_send(Box::new(obj)) {
             Ok(_) => Ok(()),
-            Err(e) => Err(Error::new(
-                ErrorKind::BrokenPipe,
-                e.to_string(),
-            )),
+            Err(e) => Err(Error::new(ErrorKind::BrokenPipe, e.to_string())),
         }
     }
 
@@ -37,10 +34,7 @@ impl Stream {
                     format!("received object type id {:?}", e.type_id()),
                 )),
             },
-            Err(e) => Err(Error::new(
-                ErrorKind::BrokenPipe,
-                e.to_string(),
-            )),
+            Err(e) => Err(Error::new(ErrorKind::BrokenPipe, e.to_string())),
         }
     }
 }

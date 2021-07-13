@@ -2,7 +2,6 @@
 #![cfg(feature = "obj")]
 
 use super::Comms;
-use async_std::net::UdpSocket;
 use async_trait::async_trait;
 use bincode::{deserialize, serialize};
 use serde::{de::DeserializeOwned, Serialize};
@@ -52,4 +51,3 @@ impl<X: Comms> ObjComms for X {
         Ok(buf)
     }
 }
-

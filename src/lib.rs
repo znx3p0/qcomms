@@ -7,8 +7,6 @@
 
 use cfg_if::cfg_if;
 
-
-
 /// Keepalive message used for the Keepalive methods
 pub const KEEPALIVE: &[u8; 4] = &[74, 197, 182, 85];
 
@@ -29,4 +27,3 @@ cfg_if! {
         pub use async_comms::chan::Stream;
     }
 }
-
