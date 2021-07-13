@@ -1,4 +1,4 @@
-#![deny(missing_docs)]
+// #![deny(missing_docs)]
 
 //!
 //! qcomms has a set of helper traits and two data structures which help
@@ -12,7 +12,6 @@ mod async_comms;
 
 /// Has encryption traits and the Steer and SyncSteer helper structures
 pub mod encrypt;
-mod sync_comms;
 
 #[cfg(feature = "asynct")]
 pub use async_comms::comms::*;
@@ -20,8 +19,7 @@ pub use async_comms::comms::*;
 #[cfg(feature = "asynct")]
 #[cfg(feature = "obj")]
 pub use async_comms::async_object::*;
+#[cfg(feature = "asynct")]
+#[cfg(feature = "obj")]
+pub use async_comms::chan::Stream;
 
-/// Has the synchronous version of Comms and ObjComms
-pub mod sync {
-    pub use crate::sync_comms::*;
-}

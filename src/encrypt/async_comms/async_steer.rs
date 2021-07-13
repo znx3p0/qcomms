@@ -12,13 +12,13 @@ use crate::{
 use std::io::Result;
 
 /// Wrapper type around a stream that allows for encryption
-pub struct Steer<'a, Stream: Comms + Send + Sync, Encryptor> {
+pub struct Steer<'a, Stream: Comms + Send, Encryptor> {
     pub(crate) stream: Stream,
     pub(crate) key: &'a [u8],
     ty: PhantomData<Encryptor>,
 }
 
-impl<'a, Stream: Comms + Send + Sync, Encryptor: Encrypt + Decrypt> Steer<'a, Stream, Encryptor> {
+impl<'a, Stream: Comms + Send, Encryptor: Encrypt + Decrypt> Steer<'a, Stream, Encryptor> {
     /// Create a new steer
     pub fn new(stream: Stream, key: &'a [u8]) -> Self {
         Self {
@@ -57,7 +57,7 @@ impl<'a, Stream: Comms + Send + Sync, Encryptor: Encrypt + Decrypt> Steer<'a, St
     ///
     /// steer.tx(Message(2)).await?;
     /// ```
-    pub async fn tx<T: Serialize + Send + Sync + ?Sized>(&mut self, obj: &T) -> Result<()> {
+    pub async fn tx<T: Serialize + Send + Sync + ?Sized>(&mut self, obj: &T) -> Result<usize> {
         let buf: Vec<u8> = match serialize(obj) {
             Ok(s) => s,
             Err(e) => {

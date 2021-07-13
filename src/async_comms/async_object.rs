@@ -2,10 +2,11 @@
 #![cfg(feature = "obj")]
 
 use super::Comms;
+use async_std::net::UdpSocket;
 use async_trait::async_trait;
 use bincode::{deserialize, serialize};
 use serde::{de::DeserializeOwned, Serialize};
-use std::io::Result;
+use std::{any::Any, io::Result};
 
 /// ObjComms allows for serializable data structures to be sent across a stream
 /// and also allows for deserializable data structures to be received from a stream
@@ -16,15 +17,16 @@ use std::io::Result;
 /// conn.rx::<i32>().await?;
 /// ```
 ///
-#[async_trait]
-pub trait ObjComms: Comms {
-    /// Send a serializable data structure across a stream
-    ///
-    /// ```
-    /// conn.tx(1234).await?;
-    /// ```
-    async fn tx<T: Serialize + Send + Sync + ?Sized>(&mut self, obj: &T) -> Result<()> {
-        let buf: Vec<u8> = match serialize(obj) {
+#[async_trait(?Send)]
+pub trait ObjComms {
+    async fn tx<T: Serialize + Any>(&mut self, obj: T) -> Result<usize>;
+    async fn rx<T: DeserializeOwned + Any>(&mut self) -> Result<T>;
+}
+
+#[async_trait(?Send)]
+impl<X: Comms> ObjComms for X {
+    async fn tx<T: Serialize>(&mut self, obj: T) -> Result<usize> {
+        let buf: Vec<u8> = match serialize(&obj) {
             Ok(s) => s,
             Err(e) => {
                 return Err(std::io::Error::new(
@@ -36,12 +38,7 @@ pub trait ObjComms: Comms {
         self.send(&buf).await
     }
 
-    /// Receive a deserializable data structure from a stream
-    ///
-    /// ```
-    /// conn.rx::<String>().await?;
-    /// ```
-    async fn rx<T: DeserializeOwned + Send + Sync>(&mut self) -> Result<T> {
+    async fn rx<T: DeserializeOwned>(&mut self) -> Result<T> {
         let buf = self.receive().await?;
         let buf: T = match deserialize(&buf) {
             Ok(s) => s,
@@ -56,4 +53,3 @@ pub trait ObjComms: Comms {
     }
 }
 
-impl<T: Comms> ObjComms for T {}

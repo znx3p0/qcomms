@@ -20,30 +20,6 @@ pub trait Decrypt {
     }
 }
 
-impl Encrypt for std::net::TcpStream {}
-impl Decrypt for std::net::TcpStream {}
-
-#[cfg(feature = "asynct")]
-#[cfg(feature = "obj")]
-impl Encrypt for tokio::net::TcpStream {}
-#[cfg(feature = "asynct")]
-#[cfg(feature = "obj")]
-impl Encrypt for tokio::net::UnixStream {}
-
-#[cfg(feature = "asynct")]
-#[cfg(feature = "obj")]
-impl Encrypt for tokio::net::UdpSocket {}
-#[cfg(feature = "asynct")]
-#[cfg(feature = "obj")]
-impl Decrypt for tokio::net::UdpSocket {}
-
-#[cfg(feature = "asynct")]
-#[cfg(feature = "obj")]
-impl Decrypt for tokio::net::TcpStream {}
-#[cfg(feature = "asynct")]
-#[cfg(feature = "obj")]
-impl Decrypt for tokio::net::UnixStream {}
-
 /// Synchronous version of the Steer. It is used as a wrapper for a Stream(TcpStream or UnixStream)
 /// Steers are used for encryption
 pub struct SyncSteer<Net: Write + Read, Enc: Encrypt + Decrypt> {
