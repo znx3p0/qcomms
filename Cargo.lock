@@ -482,6 +482,7 @@ dependencies = [
  "async-std",
  "async-trait",
  "bincode",
+ "cfg-if",
  "serde",
  "tokio",
 ]

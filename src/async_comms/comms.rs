@@ -29,7 +29,7 @@ macro_rules! implement {
                 self.write(&length).await?;
                 self.flush().await?;
                 self.write(buf).await?;
-                self.flush().await;
+                self.flush().await?;
                 Ok(buf.len())
             }
             async fn receive_keepalive(&mut self) -> Result<()> {
@@ -109,7 +109,7 @@ impl Comms for UdpSocket {
     async fn send(&mut self, buf: &[u8]) -> Result<usize> {
         let length: [u8; 8] = u64::to_ne_bytes(buf.len() as u64);
         self.send(&length).await?;
-        self.send(buf).await;
+        self.send(buf).await?;
         Ok(buf.len())
     }
 
@@ -128,10 +128,4 @@ impl Comms for UdpSocket {
         self.send(KEEPALIVE).await?;
         Ok(())
     }
-}
-
-
-async fn a(mut s: TcpStream) {
-    // s.send_to(buf, addrs)
-    s.write(b"adf").await;
 }
