@@ -4,19 +4,24 @@ qcomms is a small library that offers a simple message passing trait.
 it also offers keepalive and other stream helpers.
 
 ```rust
-use qcomms::sync::SyncObjComms;
+use qcomms::ObjComms;
 use serde::{Serialize, Deserialize};
+use async_std::task;
+use async_std::task::sleep;
+use async_std::net::{TcpListener, TcpStream};
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Message {
     hello: String,
     val: u32,
 }
 
-fn main() {
-    std::thread::spawn(||{
-        let listener = std::net::TcpListener::bind("127.0.0.1:3022").unwrap();
+#[async_std::main]
+async fn main() {
+    task::spawn(async move {
+        let listener = TcpListener::bind("127.0.0.1:3022").await.unwrap();
         let (mut stream, _) = listener.accept().unwrap();
-        let message: Message = stream.rx().unwrap();
+        let message: Message = stream.rx().await.unwrap();
         println!("{:?}", message);
     });
 
@@ -25,8 +30,8 @@ fn main() {
         val: 12,
     };
 
-    std::thread::sleep(std::time::Duration::from_secs(1));
-    let mut stream = std::net::TcpStream::connect("127.0.0.1:3022").unwrap();
-    stream.tx(&m).unwrap();
+    task::sleep(Duration::from_secs(1)).await;
+    let mut stream = TcpStream::connect("127.0.0.1:3022").await.unwrap();
+    stream.tx(&m).await.unwrap();
 }
 ```
